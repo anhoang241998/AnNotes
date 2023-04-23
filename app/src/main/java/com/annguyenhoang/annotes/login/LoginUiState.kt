@@ -5,8 +5,11 @@ import com.annguyenhoang.annotes.data.remote.auth.UserDto
 /**
  * UiState for the login screen.
  */
-data class LoginUiState(
-    val isLoading: Boolean = false,
-    val data: UserDto? = null,
-    val error: String? = null
-)
+sealed class LoginUiState(
+    data: UserDto?,
+    error: String?
+) {
+    object Loading : LoginUiState(null, null)
+    data class Data(val data: UserDto?) : LoginUiState(data, null)
+    data class Error(val error: String?) : LoginUiState(null, error)
+}

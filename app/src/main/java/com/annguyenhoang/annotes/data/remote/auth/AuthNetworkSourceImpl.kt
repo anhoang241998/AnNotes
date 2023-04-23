@@ -31,7 +31,7 @@ class AuthNetworkSourceImpl @Inject constructor(
                 users.add(UserDto(UUID.randomUUID().toString(), Gson().toJson(newUser)))
                 val mapOfUser = mutableMapOf<String, String>(USER_NODE_NAME to Gson().toJson(users))
                 databaseRef.setValue(mapOfUser)
-                trySend(LoginUiState(false, newUser))
+                trySend(LoginUiState.Data(newUser))
                 return@addOnSuccessListener
             }
 
@@ -41,14 +41,14 @@ class AuthNetworkSourceImpl @Inject constructor(
             users.addAll(firebaseUsers)
             users.forEach { user ->
                 if (user.username == username) {
-                    trySend(LoginUiState(false, user))
+                    trySend(LoginUiState.Data(user))
                     return@addOnSuccessListener
                 }
             }
-            trySend(LoginUiState(false))
+            trySend(LoginUiState.Error("Cannot login"))
         }.addOnFailureListener {
             Timber.e(it)
-            trySend(LoginUiState(false, null, "Error: $it"))
+            trySend(LoginUiState.Error("Error: $it"))
         }
 
         awaitClose {

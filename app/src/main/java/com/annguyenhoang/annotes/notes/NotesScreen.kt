@@ -19,9 +19,7 @@ import com.annguyenhoang.annotes.R
 fun NotesScreen(
     modifier: Modifier = Modifier
 ) {
-    val scaffoldState = rememberScaffoldState()
     Scaffold(
-        scaffoldState = scaffoldState,
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
