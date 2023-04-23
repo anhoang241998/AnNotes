@@ -1,4 +1,4 @@
-package com.annguyenhoang.annotes.notes
+package com.annguyenhoang.annotes.presentation.notes
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

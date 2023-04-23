@@ -1,6 +1,6 @@
 package com.annguyenhoang.annotes.data.remote.auth
 
-import com.annguyenhoang.annotes.login.LoginUiState
+import com.annguyenhoang.annotes.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 
 interface AuthNetworkSource {

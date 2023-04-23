@@ -8,12 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.annguyenhoang.annotes.login.LoginScreen
-import com.annguyenhoang.annotes.login.LoginViewModel
+import com.annguyenhoang.annotes.presentation.login.LoginScreen
+import com.annguyenhoang.annotes.presentation.login.LoginViewModel
 import com.annguyenhoang.annotes.navigation.AppScreens.LOGIN_SCREEN
 import com.annguyenhoang.annotes.navigation.AppScreens.NOTES_SCREEN
 import com.annguyenhoang.annotes.navigation.TodoDestinationsArgs.USER_ID
-import com.annguyenhoang.annotes.notes.NotesScreen
+import com.annguyenhoang.annotes.presentation.notes.NotesScreen
 
 /**
  * Screens used in [AppDestinations]

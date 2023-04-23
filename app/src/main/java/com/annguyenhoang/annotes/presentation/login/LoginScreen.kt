@@ -1,4 +1,4 @@
-package com.annguyenhoang.annotes.login
+package com.annguyenhoang.annotes.presentation.login
 
 import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures

@@ -1,4 +1,4 @@
-package com.annguyenhoang.annotes.login
+package com.annguyenhoang.annotes.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

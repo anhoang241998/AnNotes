@@ -1,6 +1,6 @@
 package com.annguyenhoang.annotes.data.remote.auth
 
-import com.annguyenhoang.annotes.login.LoginUiState
+import com.annguyenhoang.annotes.presentation.login.LoginUiState
 import com.google.firebase.database.DatabaseReference
 import com.google.gson.Gson
 import kotlinx.coroutines.channels.awaitClose

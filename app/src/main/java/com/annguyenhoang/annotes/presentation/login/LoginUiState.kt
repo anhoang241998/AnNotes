@@ -1,4 +1,4 @@
-package com.annguyenhoang.annotes.login
+package com.annguyenhoang.annotes.presentation.login
 
 import com.annguyenhoang.annotes.data.remote.auth.UserDto
 
