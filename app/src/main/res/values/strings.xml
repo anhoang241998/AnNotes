@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">An Notes</string>
+    <string name="label_login">Enter your name</string>
+    <string name="login_btn">Login</string>
+    <string name="note_list">Notes</string>
+    <string name="add_note">Add Note</string>
 </resources>

@@ -5,18 +5,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:name=".NoteApplication"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AnNotes"
-        tools:targetApi="31">
+        android:theme="@style/Base.AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".NoteAppActivity"
             android:exported="true"
-            android:theme="@style/Theme.AnNotes">
+            android:theme="@style/Base.AppTheme"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

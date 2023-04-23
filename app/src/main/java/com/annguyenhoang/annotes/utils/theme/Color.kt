@@ -1,4 +1,4 @@
-package com.annguyenhoang.annotes.ui.theme
+package com.annguyenhoang.annotes.utils.theme
 
 import androidx.compose.ui.graphics.Color
 
