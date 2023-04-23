@@ -1,7 +1,10 @@
 package com.annguyenhoang.annotes.data.remote.auth
 
+import com.annguyenhoang.annotes.login.LoginUiState
 import com.google.firebase.database.DatabaseReference
 import com.google.gson.Gson
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -18,38 +21,38 @@ class AuthNetworkSourceImpl @Inject constructor(
         mutableListOf<UserDto>()
     }
 
-    override fun login(username: String) {
+    override fun login(username: String) = callbackFlow {
         databaseRef.child(USER_NODE_NAME).get().addOnSuccessListener { result ->
             val valueNodes = result.value
 
+            // Register
             if (valueNodes == null) {
-                users.add(UserDto(UUID.randomUUID().toString(), username))
-                val mapOfUser = mutableMapOf<String, String>(
-                    USER_NODE_NAME to Gson().toJson(users)
-                )
+                val newUser = UserDto(UUID.randomUUID().toString(), username)
+                users.add(UserDto(UUID.randomUUID().toString(), Gson().toJson(newUser)))
+                val mapOfUser = mutableMapOf<String, String>(USER_NODE_NAME to Gson().toJson(users))
                 databaseRef.setValue(mapOfUser)
-                //                    trySend(true)
+                trySend(LoginUiState(false, newUser))
                 return@addOnSuccessListener
             }
 
-            val userNode = valueNodes
-            val b = 0
-            //                userNode.let { usersJSONString ->
-            //                    val usersFromFirebase =
-            //                        Gson().fromJson(usersJSONString, Array<UserDto>::class.java).asList()
-            //                    users.clear()
-            //                    users.addAll(usersFromFirebase)
-            //                    users.forEach { user ->
-            //                        if (user.username == username) {
-            //                            val a = username
-            //                            val b = 0
-            //                        }
-            //                    }
-            //                }
-            //                trySend(true)
+            val usersJSON = valueNodes as String
+            val firebaseUsers = Gson().fromJson(usersJSON, Array<UserDto>::class.java).asList()
+            users.clear()
+            users.addAll(firebaseUsers)
+            users.forEach { user ->
+                if (user.username == username) {
+                    trySend(LoginUiState(false, user))
+                    return@addOnSuccessListener
+                }
+            }
+            trySend(LoginUiState(false))
         }.addOnFailureListener {
             Timber.e(it)
-//                trySend(false)
+            trySend(LoginUiState(false, null, "Error: $it"))
+        }
+
+        awaitClose {
+            channel.close()
         }
     }
 
