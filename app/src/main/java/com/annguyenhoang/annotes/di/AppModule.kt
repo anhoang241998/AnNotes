@@ -1,7 +1,7 @@
 package com.annguyenhoang.annotes.di
 
 import com.annguyenhoang.annotes.data.AuthRepository
-import com.annguyenhoang.annotes.data.AuthRepositoryImpl
+import com.annguyenhoang.annotes.data.remote.auth.AuthRepositoryImpl
 import com.annguyenhoang.annotes.data.remote.auth.AuthNetworkSource
 import com.annguyenhoang.annotes.data.remote.auth.AuthNetworkSourceImpl
 import com.google.firebase.database.DatabaseReference

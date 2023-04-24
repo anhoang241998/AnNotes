@@ -1,6 +1,6 @@
-package com.annguyenhoang.annotes.data
+package com.annguyenhoang.annotes.data.remote.auth
 
-import com.annguyenhoang.annotes.data.remote.auth.AuthNetworkSource
+import com.annguyenhoang.annotes.data.AuthRepository
 import com.annguyenhoang.annotes.presentation.login.LoginUiState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

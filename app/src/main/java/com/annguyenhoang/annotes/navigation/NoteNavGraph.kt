@@ -8,11 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.annguyenhoang.annotes.presentation.login.LoginScreen
-import com.annguyenhoang.annotes.presentation.login.LoginViewModel
 import com.annguyenhoang.annotes.navigation.AppScreens.LOGIN_SCREEN
 import com.annguyenhoang.annotes.navigation.AppScreens.NOTES_SCREEN
 import com.annguyenhoang.annotes.navigation.TodoDestinationsArgs.USER_ID
+import com.annguyenhoang.annotes.presentation.login.LoginScreen
+import com.annguyenhoang.annotes.presentation.login.LoginUiEvent
+import com.annguyenhoang.annotes.presentation.login.LoginViewModel
 import com.annguyenhoang.annotes.presentation.notes.NotesScreen
 
 /**
@@ -50,12 +51,24 @@ fun NoteNaveGraph(
         modifier = modifier
     ) {
         composable(AppDestinations.LOGIN_ROUTE) {
-            val loginViewModel = hiltViewModel<LoginViewModel>()
+            val loginViewModel: LoginViewModel = hiltViewModel()
+            val username = loginViewModel.usernameTextField.value
+            val isShowDialog = loginViewModel.isShowDialog.value
             val loginUiState = loginViewModel.uiState.collectAsState(initial = null)
 
             LoginScreen(
-                uiState = loginUiState.value,
-                onLoginTapped = loginViewModel::login,
+                username = username,
+                isShowDialog = isShowDialog,
+                loginUiState = loginUiState.value,
+                onChangedUsernameText = { text ->
+                    loginViewModel.onEvent(LoginUiEvent.EnteredUsernameTextField(text))
+                },
+                onLoginTapped = { context, text ->
+                    loginViewModel.onEvent(LoginUiEvent.Login(context, text))
+                },
+                onShowDialog = {
+                    loginViewModel.onEvent(LoginUiEvent.ShowLoadingDialog(it))
+                },
                 onNavigateToNotesScreen = { userDto ->
                     navController.navigate("${NOTES_SCREEN}/${userDto?.userId ?: ""}")
                 })
