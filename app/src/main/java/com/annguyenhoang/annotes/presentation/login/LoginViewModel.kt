@@ -1,8 +1,9 @@
 package com.annguyenhoang.annotes.presentation.login
 
+import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.annguyenhoang.annotes.data.AuthRepository
 import com.annguyenhoang.annotes.utils.isNetworkAvailable
@@ -12,13 +13,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val noteRepository: AuthRepository
-) : ViewModel() {
+    private val authRepository: AuthRepository,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val _usernameTextField = mutableStateOf("")
     val usernameTextField: State<String> = _usernameTextField
@@ -36,13 +37,8 @@ class LoginViewModel @Inject constructor(
             }
             is LoginUiEvent.Login -> {
                 _uiState.send(LoginUiState.Loading)
-                if (isNetworkAvailable(event.context)) {
-                    val timeout = withTimeoutOrNull(5000) {
-                        noteRepository.login(event.username).collectLatest(_uiState::send)
-                    }
-                    if (timeout == null) {
-                        _uiState.send(LoginUiState.Error("Something went wrong!"))
-                    }
+                if (isNetworkAvailable(getApplication<Application>().applicationContext)) {
+                    authRepository.login(event.username).collectLatest(_uiState::send)
                 } else {
                     _uiState.send(LoginUiState.Error("No Internet Connection"))
                 }

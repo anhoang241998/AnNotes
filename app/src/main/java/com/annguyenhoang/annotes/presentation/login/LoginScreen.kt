@@ -1,6 +1,5 @@
 package com.annguyenhoang.annotes.presentation.login
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +31,7 @@ fun LoginScreen(
     isShowDialog: Boolean,
     loginUiState: LoginUiState?,
     onChangedUsernameText: (String) -> Unit,
-    onLoginTapped: (context: Context, username: String) -> Unit,
+    onLoginTapped: (username: String) -> Unit,
     onShowDialog: (Boolean) -> Unit,
     onNavigateToNotesScreen: (UserDto?) -> Unit
 ) {
@@ -75,7 +74,7 @@ fun LoginScreen(
                 focusManager = focusManager,
                 onChangedUsernameText = onChangedUsernameText,
                 onLoginTapped = { username ->
-                    onLoginTapped(context, username)
+                    onLoginTapped(username)
                 })
         }
         LoadingDialog(isShowDialog)

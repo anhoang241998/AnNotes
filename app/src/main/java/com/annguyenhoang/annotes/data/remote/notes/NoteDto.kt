@@ -1,4 +1,10 @@
 package com.annguyenhoang.annotes.data.remote.notes
 
-class NoteDto {
-}
+import java.util.UUID
+
+data class NoteDto(
+    val noteId: String = UUID.randomUUID().toString(),
+    val noteTitle: String,
+    val noteContent: String,
+    val noteAuthor: String
+)

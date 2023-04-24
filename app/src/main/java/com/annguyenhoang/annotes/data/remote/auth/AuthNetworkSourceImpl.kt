@@ -14,7 +14,7 @@ class AuthNetworkSourceImpl @Inject constructor(
 ) : AuthNetworkSource {
 
     companion object {
-        const val USER_NODE_NAME = "users"
+        private const val USER_NODE_NAME = "users"
     }
 
     private val users by lazy {
@@ -25,13 +25,14 @@ class AuthNetworkSourceImpl @Inject constructor(
         databaseRef.child(USER_NODE_NAME).get().addOnSuccessListener { result ->
             val valueNodes = result.value
 
-            // Register
+            // first time
             if (valueNodes == null) {
-                val newUser = UserDto(UUID.randomUUID().toString(), username)
-                users.add(UserDto(UUID.randomUUID().toString(), Gson().toJson(newUser)))
-                val mapOfUser = mutableMapOf<String, String>(USER_NODE_NAME to Gson().toJson(users))
-                databaseRef.setValue(mapOfUser)
-                trySend(LoginUiState.Data(newUser))
+                try {
+                    val newUser = createAndSendNewUserToFirebase(username)
+                    trySend(LoginUiState.Data(newUser))
+                } catch (e: Exception) {
+                    trySend(LoginUiState.Error("Cannot login: $e"))
+                }
                 return@addOnSuccessListener
             }
 
@@ -45,7 +46,14 @@ class AuthNetworkSourceImpl @Inject constructor(
                     return@addOnSuccessListener
                 }
             }
-            trySend(LoginUiState.Error("Cannot login"))
+
+            // set new user
+            try {
+                val newUser = createAndSendNewUserToFirebase(username)
+                trySend(LoginUiState.Data(newUser))
+            } catch (e: Exception) {
+                trySend(LoginUiState.Error("Cannot login: $e"))
+            }
         }.addOnFailureListener {
             Timber.e(it)
             trySend(LoginUiState.Error("Error: $it"))
@@ -54,6 +62,14 @@ class AuthNetworkSourceImpl @Inject constructor(
         awaitClose {
             channel.close()
         }
+    }
+
+    private fun createAndSendNewUserToFirebase(username: String): UserDto {
+        val newUser = UserDto(UUID.randomUUID().toString(), username)
+        users.add(UserDto(UUID.randomUUID().toString(), Gson().toJson(newUser)))
+        val mapOfUser = mutableMapOf<String, String>(USER_NODE_NAME to Gson().toJson(users))
+        databaseRef.setValue(mapOfUser)
+        return newUser
     }
 
 }

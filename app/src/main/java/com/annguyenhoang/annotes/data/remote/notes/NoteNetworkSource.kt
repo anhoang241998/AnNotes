@@ -1,8 +1,8 @@
-package com.annguyenhoang.annotes.data
+package com.annguyenhoang.annotes.data.remote.notes
 
 import com.annguyenhoang.annotes.presentation.notes.NotesUiState
 import kotlinx.coroutines.flow.Flow
 
-interface NoteRepository {
+interface NoteNetworkSource {
     fun fetchAllNotes(): Flow<NotesUiState>
 }

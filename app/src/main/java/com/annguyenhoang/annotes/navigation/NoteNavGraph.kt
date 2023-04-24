@@ -14,7 +14,9 @@ import com.annguyenhoang.annotes.navigation.TodoDestinationsArgs.USER_ID
 import com.annguyenhoang.annotes.presentation.login.LoginScreen
 import com.annguyenhoang.annotes.presentation.login.LoginUiEvent
 import com.annguyenhoang.annotes.presentation.login.LoginViewModel
+import com.annguyenhoang.annotes.presentation.notes.NoteViewModel
 import com.annguyenhoang.annotes.presentation.notes.NotesScreen
+import com.annguyenhoang.annotes.presentation.notes.NotesUiEvent
 
 /**
  * Screens used in [AppDestinations]
@@ -63,16 +65,30 @@ fun NoteNaveGraph(
                 onChangedUsernameText = { text ->
                     loginViewModel.onEvent(LoginUiEvent.EnteredUsernameTextField(text))
                 },
-                onLoginTapped = { context, text ->
-                    loginViewModel.onEvent(LoginUiEvent.Login(context, text))
+                onLoginTapped = { text ->
+                    loginViewModel.onEvent(LoginUiEvent.Login(text))
                 },
                 onShowDialog = {
                     loginViewModel.onEvent(LoginUiEvent.ShowLoadingDialog(it))
                 },
                 onNavigateToNotesScreen = { userDto ->
-                    navController.navigate("${NOTES_SCREEN}/${userDto?.userId ?: ""}")
+                    navController.navigate("${NOTES_SCREEN}/${userDto!!.userId}")
                 })
         }
-        composable(AppDestinations.NOTES_ROUTE) { NotesScreen() }
+        composable(AppDestinations.NOTES_ROUTE) {
+            val noteViewModel: NoteViewModel = hiltViewModel()
+            val notes = noteViewModel.noteList.value
+            val isShowLoading = noteViewModel.isShowLoading.value
+            val notesUiState = noteViewModel.uiState.collectAsState(initial = null)
+
+            NotesScreen(
+                notes = notes,
+                isLoading = isShowLoading,
+                notesUiState = notesUiState.value,
+                onFetchAllNotes = { noteViewModel.onEvent(NotesUiEvent.FetchAllNotes) },
+                onNoteChanged = { noteViewModel.onEvent(NotesUiEvent.OnNotesChanged(it)) },
+                onShowLoading = { noteViewModel.onEvent(NotesUiEvent.ShowLoadingDialog(it)) }
+            )
+        }
     }
 }
