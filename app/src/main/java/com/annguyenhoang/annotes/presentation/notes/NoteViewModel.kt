@@ -28,6 +28,15 @@ class NoteViewModel @Inject constructor(
     private val _isShowLoading = mutableStateOf(false)
     val isShowLoading: State<Boolean> = _isShowLoading
 
+    private val _noteTitle = mutableStateOf("")
+    val noteTitle: State<String> = _noteTitle
+
+    private val _noteContent = mutableStateOf("")
+    val noteContent: State<String> = _noteContent
+
+    private val _isNoteSaved = mutableStateOf(false)
+    val isNoteSaved: State<Boolean> = _isNoteSaved
+
     private val _uiState: Channel<NotesUiState?> = Channel()
     val uiState: Flow<NotesUiState?> = _uiState.receiveAsFlow()
 
@@ -36,19 +45,35 @@ class NoteViewModel @Inject constructor(
             is NotesUiEvent.FetchAllNotes -> {
                 _uiState.send(NotesUiState.Loading)
                 if (isNetworkAvailable(getApplication<Application>().applicationContext)) {
-                    noteRepository.fetchAllNotes().collectLatest { state ->
+                    noteRepository.fetchAllNotes().collect { state ->
                         _uiState.send(state)
                     }
                 } else {
                     _uiState.send(NotesUiState.Error("No Internet Connection"))
                 }
             }
+
             is NotesUiEvent.ShowLoadingDialog -> {
                 _isShowLoading.value = event.isShow
             }
+
             is NotesUiEvent.OnNotesChanged -> {
                 _noteList.value.clear()
                 _noteList.value = event.notes.toMutableList()
+            }
+
+            is NotesUiEvent.OnNoteTitleChanged -> {
+                _noteTitle.value = event.title
+            }
+
+            is NotesUiEvent.OnNoteContentChanged -> {
+                _noteContent.value = event.content
+            }
+
+            is NotesUiEvent.OnSavedNote -> {
+                noteRepository.addNewNote(event.note).collectLatest {
+                    _isNoteSaved.value = it
+                }
             }
         }
     }

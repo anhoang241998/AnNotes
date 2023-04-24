@@ -2,10 +2,10 @@ package com.annguyenhoang.annotes.data.remote.notes
 
 import com.annguyenhoang.annotes.presentation.notes.NotesUiState
 import com.google.firebase.database.DatabaseReference
-import com.google.gson.Gson
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
 
 class NoteNetworkSourceImpl @Inject constructor(
@@ -22,21 +22,27 @@ class NoteNetworkSourceImpl @Inject constructor(
 
     override fun fetchAllNotes() = callbackFlow {
         databaseRef.child(NOTES_NODE).get().addOnSuccessListener { result ->
-            val valueNodes = result.value
 
-            if (valueNodes == null) {
+            if (!result.exists()) {
                 trySend(NotesUiState.Data(notes))
                 return@addOnSuccessListener
             }
 
             try {
-                val notesJSON = valueNodes as String
-                val firebaseNotes = Gson().fromJson(notesJSON, Array<NoteDto>::class.java).asList()
+                val notesMap = result.children.associateBy(
+                    { it.key!! },
+                    { it.getValue(NoteDto::class.java)!! }
+                )
+
+                Timber.d("ANNHOLINH: $notesMap")
+
                 notes.clear()
-                notes.addAll(firebaseNotes)
-                trySend(NotesUiState.Data(notes))
+                notesMap.values.forEach { note ->
+                    notes.add(note)
+                }
+                trySend(NotesUiState.Data(notes.reversed()))
             } catch (e: Exception) {
-                trySend(NotesUiState.Error("Cannot login: $e"))
+                trySend(NotesUiState.Error("Cannot fetch data: $e"))
             }
         }.addOnFailureListener {
             Timber.e(it)
@@ -48,4 +54,31 @@ class NoteNetworkSourceImpl @Inject constructor(
         }
     }
 
+    override fun addNewNote(note: NoteDto) = createAndSendNewNoteToFirebase(note = note)
+
+    private fun createAndSendNewNoteToFirebase(note: NoteDto) = callbackFlow {
+        val noteId = UUID.randomUUID().toString()
+        try {
+            databaseRef.child(NOTES_NODE).get().addOnSuccessListener { result ->
+                if (result.exists()) {
+                    databaseRef.child(NOTES_NODE).updateChildren(mapOf(noteId to note))
+                        .addOnCompleteListener {
+                            trySend(true)
+                        }
+                } else {
+                    databaseRef.child(NOTES_NODE).setValue(mapOf(noteId to note))
+                        .addOnCompleteListener {
+                            trySend(true)
+                        }
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e("$e")
+            trySend(false)
+        }
+
+        awaitClose {
+            channel.close()
+        }
+    }
 }

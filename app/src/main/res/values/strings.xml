@@ -5,4 +5,8 @@
     <string name="note_list">Notes</string>
     <string name="add_note">Add Note</string>
     <string name="no_note_all">You have no notes!</string>
+    <string name="menu_back">Back</string>
+    <string name="cd_save_note">Save Note</string>
+    <string name="title_hint">Please enter the note title</string>
+    <string name="description_hint">Please enter note content</string>
 </resources>

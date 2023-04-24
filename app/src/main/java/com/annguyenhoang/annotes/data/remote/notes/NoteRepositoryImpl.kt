@@ -9,4 +9,6 @@ class NoteRepositoryImpl @Inject constructor(
     private val noteNetworkSource: NoteNetworkSource
 ) : NoteRepository {
     override fun fetchAllNotes() = noteNetworkSource.fetchAllNotes()
+
+    override fun addNewNote(note: NoteDto) = noteNetworkSource.addNewNote(note)
 }

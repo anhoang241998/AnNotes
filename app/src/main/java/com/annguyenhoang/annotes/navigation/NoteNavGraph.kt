@@ -5,12 +5,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.annguyenhoang.annotes.navigation.AppDestinationsArgs.USERNAME
+import com.annguyenhoang.annotes.navigation.AppScreens.ADD_NOTE_SCREEN
 import com.annguyenhoang.annotes.navigation.AppScreens.LOGIN_SCREEN
 import com.annguyenhoang.annotes.navigation.AppScreens.NOTES_SCREEN
-import com.annguyenhoang.annotes.navigation.TodoDestinationsArgs.USER_ID
+import com.annguyenhoang.annotes.presentation.add_note.AddNoteScreen
 import com.annguyenhoang.annotes.presentation.login.LoginScreen
 import com.annguyenhoang.annotes.presentation.login.LoginUiEvent
 import com.annguyenhoang.annotes.presentation.login.LoginViewModel
@@ -24,13 +28,14 @@ import com.annguyenhoang.annotes.presentation.notes.NotesUiEvent
 private object AppScreens {
     const val LOGIN_SCREEN = "LOGIN_SCREEN"
     const val NOTES_SCREEN = "NOTES_SCREEN"
+    const val ADD_NOTE_SCREEN = "ADD_NOTE_SCREEN"
 }
 
 /**
  * Arguments used in [AppDestinations] routes
  */
-object TodoDestinationsArgs {
-    const val USER_ID = "userId"
+object AppDestinationsArgs {
+    const val USERNAME = "userName"
 }
 
 /**
@@ -38,7 +43,8 @@ object TodoDestinationsArgs {
  */
 object AppDestinations {
     const val LOGIN_ROUTE = LOGIN_SCREEN
-    const val NOTES_ROUTE = "${NOTES_SCREEN}/{${USER_ID}}"
+    const val NOTES_ROUTE = "${NOTES_SCREEN}/{${USERNAME}}"
+    const val ADD_NOTE_ROUTE = "${ADD_NOTE_SCREEN}/{${USERNAME}}"
 }
 
 @Composable
@@ -72,10 +78,18 @@ fun NoteNaveGraph(
                     loginViewModel.onEvent(LoginUiEvent.ShowLoadingDialog(it))
                 },
                 onNavigateToNotesScreen = { userDto ->
-                    navController.navigate("${NOTES_SCREEN}/${userDto!!.userId}")
+                    navController.navigate("${NOTES_SCREEN}/${userDto!!.username}")
                 })
         }
-        composable(AppDestinations.NOTES_ROUTE) {
+        composable(
+            AppDestinations.NOTES_ROUTE, arguments = listOf(
+                navArgument(USERNAME) {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { entry ->
+            val noteAuthor = entry.arguments?.getString(USERNAME) ?: ""
             val noteViewModel: NoteViewModel = hiltViewModel()
             val notes = noteViewModel.noteList.value
             val isShowLoading = noteViewModel.isShowLoading.value
@@ -87,7 +101,35 @@ fun NoteNaveGraph(
                 notesUiState = notesUiState.value,
                 onFetchAllNotes = { noteViewModel.onEvent(NotesUiEvent.FetchAllNotes) },
                 onNoteChanged = { noteViewModel.onEvent(NotesUiEvent.OnNotesChanged(it)) },
-                onShowLoading = { noteViewModel.onEvent(NotesUiEvent.ShowLoadingDialog(it)) }
+                onShowLoading = { noteViewModel.onEvent(NotesUiEvent.ShowLoadingDialog(it)) },
+                onAddBtnTapped = {
+                    navController.navigate("${ADD_NOTE_SCREEN}/${noteAuthor}")
+                }
+            )
+        }
+        composable(
+            AppDestinations.ADD_NOTE_ROUTE, arguments = listOf(
+                navArgument(USERNAME) {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { entry ->
+            val noteAuthor = entry.arguments?.getString(USERNAME) ?: ""
+            val noteViewModel: NoteViewModel = hiltViewModel()
+            val noteTitle = noteViewModel.noteTitle.value
+            val noteContent = noteViewModel.noteContent.value
+            val isNoteSaved = noteViewModel.isNoteSaved.value
+
+            AddNoteScreen(
+                noteTitle = noteTitle,
+                noteContent = noteContent,
+                noteAuthor = noteAuthor,
+                isNoteSaved = isNoteSaved,
+                onBack = { navController.popBackStack() },
+                onNoteTitleChanged = { noteViewModel.onEvent(NotesUiEvent.OnNoteTitleChanged(it)) },
+                onNoteContentChanged = { noteViewModel.onEvent(NotesUiEvent.OnNoteContentChanged(it)) },
+                onSavedNote = { noteViewModel.onEvent(NotesUiEvent.OnSavedNote(it)) }
             )
         }
     }
